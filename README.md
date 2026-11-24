@@ -34,7 +34,8 @@ python3 -m venv .venvs/asimov-walk
 source .venvs/asimov-walk/bin/activate
 python -m pip install numpy mujoco onnxruntime huggingface_hub
 hf download openhorizon-labs/asimov1-getup-safefall \
-  --include 'run_policy_mujoco.py' 'policies/*' \
+  run_policy_mujoco.py policies/safefall.onnx policies/safefall_policy_spec.json \
+  policies/getup.onnx policies/getup_policy_spec.json \
   --local-dir asimov1-getup-safefall
 cd asimov1-getup-safefall
 hf download Menlo/asimov1-locomotion-0818 policy.onnx --local-dir menlo-walk

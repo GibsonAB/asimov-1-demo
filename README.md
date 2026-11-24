@@ -20,6 +20,77 @@ To reproduce the joint close-ups, load the model XML in the standalone MuJoCo vi
 
 The OpenHorizon recovery policies are simulation-only. Follow their setup instructions for the compatible model, policy configuration, and runner.
 
+## Run the walking demo
+
+This CPU MuJoCo demo walks using Menlo’s policy, applies a simulated push, and uses OpenHorizon’s safe-fall and get-up policies when needed. Use the official Menlo MJCF for this runner. See the [upstream demo and policy files](https://huggingface.co/openhorizon-labs/asimov1-getup-safefall#run-it).
+
+### One-time setup for both launch options
+
+On Ubuntu, have Git and Python with venv support installed. These commands use a fresh checkout under your home directory.
+
+```bash
+cd ~
+python3 -m venv .venvs/asimov-walk
+source .venvs/asimov-walk/bin/activate
+python -m pip install numpy mujoco onnxruntime huggingface_hub
+hf download openhorizon-labs/asimov1-getup-safefall \
+  --include 'run_policy_mujoco.py' 'policies/*' \
+  --local-dir asimov1-getup-safefall
+cd asimov1-getup-safefall
+hf download Menlo/asimov1-locomotion-0818 policy.onnx --local-dir menlo-walk
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/menloresearch/asimov-1.git
+git -C asimov-1 sparse-checkout set sim-model
+```
+
+### Option 1 · Robotics Ecosystem 2027
+
+In **Tools → MuJoCo**, select **Run project controller or policy**. Use absolute paths, replacing `<home>` with your home directory.
+
+| Field | Value |
+| --- | --- |
+| Project runner | `<home>/asimov1-getup-safefall/run_policy_mujoco.py` |
+| Working directory | `<home>/asimov1-getup-safefall` |
+| Python launcher under Advanced | `<home>/.venvs/asimov-walk/bin/python` |
+
+Leave the optional ROS 2 telemetry bridge off for this standalone simulation. Paste the following into **Arguments**, one entry per line, then select **Review and launch**.
+
+```text
+--mjcf
+asimov-1/sim-model/xmls/asimov_1.xml
+--mode
+walk
+--walk-onnx
+menlo-walk/policy.onnx
+--onnx
+policies/safefall.onnx
+--spec
+policies/safefall_policy_spec.json
+--getup-onnx
+policies/getup.onnx
+--getup-spec
+policies/getup_policy_spec.json
+--view
+```
+
+### Option 2 · Terminal
+
+From a new terminal, activate the same environment and start the runner.
+
+```bash
+source "$HOME/.venvs/asimov-walk/bin/activate"
+cd "$HOME/asimov1-getup-safefall"
+python run_policy_mujoco.py \
+  --mjcf asimov-1/sim-model/xmls/asimov_1.xml \
+  --mode walk \
+  --walk-onnx menlo-walk/policy.onnx \
+  --onnx policies/safefall.onnx \
+  --spec policies/safefall_policy_spec.json \
+  --getup-onnx policies/getup.onnx \
+  --getup-spec policies/getup_policy_spec.json \
+  --view
+```
+
 ## Credits
 
 Asimov 1 was developed by [Menlo Research](https://github.com/menloresearch/asimov-1). The linked recovery project is by OpenHorizon Labs and the Physical AI & Robotics Lab at Galgotias University. Each upstream project includes its own license terms.

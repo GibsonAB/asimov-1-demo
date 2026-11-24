@@ -22,7 +22,7 @@ The OpenHorizon recovery policies are simulation-only. Follow their setup instru
 
 ## Run the walking demo
 
-This CPU MuJoCo demo walks using Menlo’s policy, applies a simulated push, and uses OpenHorizon’s safe-fall and get-up policies when needed. Use the official Menlo MJCF for this runner. See the [upstream demo and policy files](https://huggingface.co/openhorizon-labs/asimov1-getup-safefall#run-it).
+This CPU MuJoCo demo walks using Menlo’s policy, applies a simulated push, and uses OpenHorizon’s safe-fall and get-up policies when needed. Use the Menlo model revision pinned by the OpenHorizon policies repository. That revision contains the MJCF path used below. See the [upstream demo and policy files](https://huggingface.co/openhorizon-labs/asimov1-getup-safefall#run-it).
 
 ### One-time setup for both launch options
 
@@ -38,9 +38,9 @@ hf download openhorizon-labs/asimov1-getup-safefall \
   --local-dir asimov1-getup-safefall
 cd asimov1-getup-safefall
 hf download Menlo/asimov1-locomotion-0818 policy.onnx --local-dir menlo-walk
-GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --filter=blob:none --sparse \
+GIT_LFS_SKIP_SMUDGE=1 git clone --no-checkout --filter=blob:none \
   https://github.com/menloresearch/asimov-1.git
-git -C asimov-1 sparse-checkout set sim-model
+GIT_LFS_SKIP_SMUDGE=1 git -C asimov-1 checkout --detach 35ae7b3581ce36762bfddb00b8fc5e7c957ee7fa
 ```
 
 ### Option 1 · Robotics Ecosystem 2027
